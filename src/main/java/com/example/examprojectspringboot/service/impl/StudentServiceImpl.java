@@ -41,12 +41,20 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void saveStudent(Long groupId, Student student) throws IOException {
         Group group = groupRepository.findById(groupId).get();
-        for (Course c : group.getCourses()) {
-            c.getCompany().plus();
-        }
-        for (Course c : group.getCourses()) {
-            for (Instructor i : c.getInstructors()) {
-                i.plus();
+        for (Student s :group.getStudents()) {
+            for (Course c : group.getCourses()) {
+                if (s.getEmail().equals(student.getEmail())) {
+                    throw new IOException("Student with email already exists!");
+                }
+                if (s.getPhoneNumber().equals(student.getPhoneNumber())) {
+                    throw new IOException("Student with phone number already exists!");
+                }
+                c.getCompany().plus();
+            }
+            for (Course c : group.getCourses()) {
+                for (Instructor i : c.getInstructors()) {
+                    i.plus();
+                }
             }
         }
         validator(student.getPhoneNumber().replace(" ", ""), student.getLastName()

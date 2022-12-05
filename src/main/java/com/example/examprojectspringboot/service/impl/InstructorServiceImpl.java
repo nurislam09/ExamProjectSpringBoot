@@ -1,8 +1,6 @@
 package com.example.examprojectspringboot.service.impl;
 
-import com.example.examprojectspringboot.model.Course;
-import com.example.examprojectspringboot.model.Instructor;
-import com.example.examprojectspringboot.model.Lesson;
+import com.example.examprojectspringboot.model.*;
 import com.example.examprojectspringboot.repository.CourseRepository;
 import com.example.examprojectspringboot.repository.InstructorRepository;
 import com.example.examprojectspringboot.service.InstructorService;
@@ -41,16 +39,15 @@ public class InstructorServiceImpl implements InstructorService {
     public void saveInstructor(Long courseId, Instructor instructor) throws IOException {
         Course course = courseRepository.findById(courseId).get();
         for (Instructor i : course.getInstructors()) {
-            try {
-                if (i.getEmail().equals(instructor.getEmail()))
-                    throw new IOException();
-            } catch (IOException e) {
-                throw new IOException("This email already exists!");
+            if (i.getEmail().equals(instructor.getEmail())){
+                throw new IOException("Instructor with email already exists!");
             }
+            if (i.getPhoneNumber().equals(instructor.getPhoneNumber())) {
+                throw new IOException("Student with this phoneNumber already exists!");
+            }
+
         }
-        validator(instructor.getPhoneNumber().replace(" ", ""), instructor.getLastname()
-                .replace(" ", ""), instructor.getFirstname()
-                .replace(" ", ""));
+        validator(instructor.getPhoneNumber().replace(" ",""),instructor.getLastname().replace(" ",""),instructor.getFirstname().replace(" ",""));
         course.addInstructor(instructor);
         instructor.setCourse(course);
         instructorRepository.save(instructor);
@@ -87,6 +84,13 @@ public class InstructorServiceImpl implements InstructorService {
                 }
             }
         }
+        int count = 0;
+        for (Group group : course.getGroups()) {
+            for (Student student : group.getStudents()) {
+                count++;
+            }
+        }
+        instructor.setStudent(count);
         instructor.setCourse(course);
         course.addInstructor(instructor);
         courseRepository.save(course);

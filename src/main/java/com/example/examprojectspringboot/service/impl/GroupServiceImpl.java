@@ -2,6 +2,8 @@ package com.example.examprojectspringboot.service.impl;
 
 import com.example.examprojectspringboot.model.Course;
 import com.example.examprojectspringboot.model.Group;
+import com.example.examprojectspringboot.model.Instructor;
+import com.example.examprojectspringboot.model.Student;
 import com.example.examprojectspringboot.repository.CourseRepository;
 import com.example.examprojectspringboot.repository.GroupRepository;
 import com.example.examprojectspringboot.service.GroupService;
@@ -55,9 +57,19 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void deleteGroup(Long id) {
-       // Course course = courseRepository.findById(id).get();
-        Group group = groupRepository.findById(id).get();
-       // course.remove(group);
+        Group group = groupRepository.getById(id);
+        List<Student> students = group.getStudents();
+        Long count = students.stream().count();
+        for (Course course : group.getCourses()) {
+            int count1 = course.getCompany().getCountOfStudent();
+            count1 -= count;
+            course.getCompany().setCountOfStudent(count1);
+            for (Instructor instructor : course.getInstructors()) {
+                int count2 = instructor.getStudent();
+                count2 -= count;
+                instructor.setStudent(count2);
+            }
+        }
         groupRepository.delete(group);
     }
 
